@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function Home() {
   return (
     // Contenedor principal con padding para que no pegue a los bordes
-    <div className="container mx-auto px-4 py-12 md:py-20 max-w-7xl">
+    <div className="container mx-auto px-4 pt-4 pb-12 md:pt-8 md:pb-20 max-w-7xl">
       
       {/* Grid: 1 columna en celular, 2 columnas en PC (md:grid-cols-2) */}
       <div className="grid md:grid-cols-2 gap-12 items-center">
