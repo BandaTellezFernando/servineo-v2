@@ -1,25 +1,19 @@
-//src/components/RegistroModal.jsx"use client"; // Necesario porque usamos useState para abrir/cerrar cosas
+"use client";
 import { useState } from "react";
-import Image from "next/image"; // Opcional, pero recomendado para el logo de Google si lo descargas
+import { Map, MapMarker, MarkerContent } from "@/components/ui/map";
 
 export default function RegistroModal({ isOpen, onClose }) {
-  // Estado para controlar en qué fase estamos (1: Datos, 2: Mapa, 3: Foto)
   const [paso, setPaso] = useState(1);
-  // Estado para ver/ocultar la contraseña
   const [mostrarPassword, setMostrarPassword] = useState(false);
   const [mostrarConfirmaPassword, setMostrarConfirmaPassword] = useState(false);
 
-  // Si el modal no está abierto, no renderizamos nada
   if (!isOpen) return null;
 
   return (
-    // Fondo oscuro semi-transparente que cubre toda la pantalla
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      
-      {/* Contenedor principal de la ventana flotante */}
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative flex flex-col max-h-[90vh]">
         
-        {/* Botón de Cerrar (X) en la esquina superior derecha */}
+        {/* Botón de Cerrar (X) */}
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition-colors"
@@ -27,11 +21,12 @@ export default function RegistroModal({ isOpen, onClose }) {
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
 
-        {/* Encabezado Fijo (Título y Barra de Progreso) */}
+        {/* Encabezado Dinámico */}
         <div className="pt-8 pb-4 px-8 shrink-0">
-          <h2 className="text-2xl font-bold text-center text-texto-oscuro mb-6">Crear cuenta</h2>
+          <h2 className="text-2xl font-bold text-center text-texto-oscuro mb-6">
+            {paso === 1 ? "Crear cuenta" : paso === 2 ? "Ubicación" : "Foto de perfil"}
+          </h2>
           
-          {/* Animación de 3 pasos */}
           <div className="flex justify-center gap-2 mb-2">
             <div className={`h-1.5 rounded-full transition-all duration-300 ${paso >= 1 ? 'w-8 bg-primario' : 'w-8 bg-gray-100'}`}></div>
             <div className={`h-1.5 rounded-full transition-all duration-300 ${paso >= 2 ? 'w-8 bg-primario' : 'w-8 bg-gray-100'}`}></div>
@@ -39,107 +34,66 @@ export default function RegistroModal({ isOpen, onClose }) {
           </div>
         </div>
 
-        {/* Área scrolleable (Aquí está la barra lateral de scroll) */}
+        {/* Área scrolleable */}
         <div className="overflow-y-auto px-8 pb-8 custom-scrollbar">
           
-          {/* FASE 1: Formulario de Datos */}
+          {/* ========================================= */}
+          {/* FASE 1: Formulario de Datos               */}
+          {/* ========================================= */}
           {paso === 1 && (
             <div className="flex flex-col gap-4">
-              
-              {/* Campo: Nombres */}
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-bold text-texto-oscuro">Nombre(s)</label>
-                <input 
-                  type="text" 
-                  placeholder="Nombre(s)" 
-                  className="w-full p-3 rounded-lg border border-gray-300 text-texto-oscuro focus:outline-none focus:ring-2 focus:ring-primario focus:border-primario transition-all shadow-sm"
-                />
+                <input type="text" placeholder="Nombre(s)" className="w-full p-3 rounded-lg border border-gray-300 text-texto-oscuro focus:outline-none focus:ring-2 focus:ring-primario focus:border-primario transition-all shadow-sm" />
               </div>
 
-              {/* Campo: Apellidos */}
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-bold text-texto-oscuro">Apellidos</label>
-                <input 
-                  type="text" 
-                  placeholder="Apellidos" 
-                  className="w-full p-3 rounded-lg border border-gray-300 text-texto-oscuro focus:outline-none focus:ring-2 focus:ring-primario focus:border-primario transition-all shadow-sm"
-                />
+                <input type="text" placeholder="Apellidos" className="w-full p-3 rounded-lg border border-gray-300 text-texto-oscuro focus:outline-none focus:ring-2 focus:ring-primario focus:border-primario transition-all shadow-sm" />
               </div>
 
-              {/* Campo: Teléfono */}
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-bold text-texto-oscuro">Teléfono (8 dígitos)</label>
-                <input 
-                  type="tel" 
-                  maxLength={8}
-                  placeholder="Teléfono (8 dígitos)" 
-                  className="w-full p-3 rounded-lg border border-gray-300 text-texto-oscuro focus:outline-none focus:ring-2 focus:ring-primario focus:border-primario transition-all shadow-sm"
-                />
+                <input type="tel" maxLength={8} placeholder="Teléfono (8 dígitos)" className="w-full p-3 rounded-lg border border-gray-300 text-texto-oscuro focus:outline-none focus:ring-2 focus:ring-primario focus:border-primario transition-all shadow-sm" />
               </div>
 
-              {/* Campo: Correo */}
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-bold text-texto-oscuro">Correo electrónico</label>
-                <input 
-                  type="email" 
-                  placeholder="Correo electrónico" 
-                  className="w-full p-3 rounded-lg border border-gray-300 text-texto-oscuro focus:outline-none focus:ring-2 focus:ring-primario focus:border-primario transition-all shadow-sm"
-                />
+                <input type="email" placeholder="Correo electrónico" className="w-full p-3 rounded-lg border border-gray-300 text-texto-oscuro focus:outline-none focus:ring-2 focus:ring-primario focus:border-primario transition-all shadow-sm" />
               </div>
 
-              {/* Campo: Contraseña con Ojito */}
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-bold text-texto-oscuro">Contraseña</label>
                 <div className="relative">
-                  <input 
-                    type={mostrarPassword ? "text" : "password"} 
-                    placeholder="Contraseña" 
-                    className="w-full p-3 pr-10 rounded-lg border border-gray-300 text-texto-oscuro focus:outline-none focus:ring-2 focus:ring-primario focus:border-primario transition-all shadow-sm"
-                  />
-                  <button 
-                    type="button"
-                    onClick={() => setMostrarPassword(!mostrarPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-                  >
+                  <input type={mostrarPassword ? "text" : "password"} placeholder="Contraseña" className="w-full p-3 pr-10 rounded-lg border border-gray-300 text-texto-oscuro focus:outline-none focus:ring-2 focus:ring-primario focus:border-primario transition-all shadow-sm" />
+                  <button type="button" onClick={() => setMostrarPassword(!mostrarPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                   </button>
                 </div>
               </div>
 
-              {/* Campo: Confirmar Contraseña con Ojito */}
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-bold text-texto-oscuro">Confirma contraseña</label>
                 <div className="relative">
-                  <input 
-                    type={mostrarConfirmaPassword ? "text" : "password"} 
-                    placeholder="Confirma contraseña" 
-                    className="w-full p-3 pr-10 rounded-lg border border-gray-300 text-texto-oscuro focus:outline-none focus:ring-2 focus:ring-primario focus:border-primario transition-all shadow-sm"
-                  />
-                  <button 
-                    type="button"
-                    onClick={() => setMostrarConfirmaPassword(!mostrarConfirmaPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-                  >
+                  <input type={mostrarConfirmaPassword ? "text" : "password"} placeholder="Confirma contraseña" className="w-full p-3 pr-10 rounded-lg border border-gray-300 text-texto-oscuro focus:outline-none focus:ring-2 focus:ring-primario focus:border-primario transition-all shadow-sm" />
+                  <button type="button" onClick={() => setMostrarConfirmaPassword(!mostrarConfirmaPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                   </button>
                 </div>
               </div>
 
-              {/* Link de Iniciar Sesión */}
               <div className="text-center mt-2">
                 <p className="text-sm text-gray-500">
                   ¿Ya tienes una cuenta? <button className="text-primario font-semibold hover:underline">Inicia sesión</button>
                 </p>
               </div>
 
-              {/* Separador */}
               <div className="flex items-center my-2">
                 <div className="flex-1 border-t border-gray-200"></div>
                 <span className="px-3 text-xs text-gray-400 font-semibold tracking-wider">O CONTINÚA CON</span>
                 <div className="flex-1 border-t border-gray-200"></div>
               </div>
 
-              {/* Botón de Google */}
               <button className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 p-3 rounded-lg font-bold hover:bg-gray-50 transition-colors shadow-sm">
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -150,9 +104,8 @@ export default function RegistroModal({ isOpen, onClose }) {
                 Registrarse con Google
               </button>
 
-              {/* Botón de Continuar (Cambia a la Fase 2) */}
               <button 
-                onClick={() => setPaso(2)} // Esto luego lo cambiaremos para avanzar a la fase del mapa
+                onClick={() => setPaso(2)} 
                 className="w-full bg-primario text-white p-3 rounded-lg font-bold hover:bg-primario-hover transition-colors shadow-md mt-2"
               >
                 Continuar
@@ -161,15 +114,121 @@ export default function RegistroModal({ isOpen, onClose }) {
               <p className="text-center text-xs text-gray-400 mt-2">
                 *Rellene los campos obligatoriamente*
               </p>
-
             </div>
           )}
 
-          {/* FASE 2 y 3 (Sección reservada para el Mapa y la Foto después) */}
+          {/* ========================================= */}
+          {/* FASE 2: Ubicación / Mapa MapCN            */}
+          {/* ========================================= */}
           {paso === 2 && (
-            <div className="text-center py-10">
-              <h3 className="font-bold text-primario mb-4">Aquí irá el Mapa de ubicación 🗺️</h3>
-              <button onClick={() => setPaso(1)} className="text-sm text-gray-500 underline">Volver al paso 1</button>
+            <div className="flex flex-col gap-4">
+              <p className="text-center text-gray-500 text-sm mb-2">
+                Necesitamos tu ubicación para conectarte con fixers cercanos
+              </p>
+
+              {/* Contenedor del Mapa MapCN (Modo Claro) */}
+              <div className="relative w-full h-52 rounded-xl overflow-hidden shadow-inner border border-gray-200">
+                <Map 
+                  theme="light"
+                  initialViewState={{
+                    longitude: -66.1568, // Cochabamba
+                    latitude: -17.3895,
+                    zoom: 13
+                  }}
+                  className="w-full h-full"
+                >
+                  <MapMarker longitude={-66.1568} latitude={-17.3895}>
+                    <MarkerContent>
+                      <div className="flex flex-col items-center cursor-pointer hover:scale-110 transition-transform -mt-10">
+                        <svg className="w-10 h-10 text-primario drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                      </div>
+                    </MarkerContent>
+                  </MapMarker>
+                </Map>
+              </div>
+
+              <div className="flex flex-col gap-1 mt-2">
+                <label className="text-sm font-bold text-texto-oscuro">Dirección</label>
+                <input 
+                  type="text" 
+                  placeholder="Ingresa tu dirección" 
+                  className="w-full p-3 rounded-lg border border-gray-300 text-texto-oscuro focus:outline-none focus:ring-2 focus:ring-primario focus:border-primario transition-all shadow-sm"
+                />
+              </div>
+
+              <button className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-texto-oscuro p-3 rounded-lg font-bold hover:bg-gray-50 transition-colors shadow-sm">
+                <svg className="w-5 h-5 text-texto-oscuro" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                Usar mi ubicación actual
+              </button>
+
+              <div className="flex items-center gap-3 mt-4">
+                <button 
+                  onClick={() => setPaso(1)}
+                  className="w-1/2 p-3 border border-gray-300 bg-white rounded-lg font-bold text-gray-500 hover:bg-gray-50 transition-colors shadow-sm"
+                >
+                  Atrás
+                </button>
+                <button 
+                  onClick={() => setPaso(3)}
+                  className="w-1/2 bg-primario text-white p-3 rounded-lg font-bold hover:bg-primario-hover transition-colors shadow-md"
+                >
+                  Continuar
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================= */}
+          {/* FASE 3: Foto de perfil                    */}
+          {/* ========================================= */}
+          {paso === 3 && (
+            <div className="flex flex-col">
+              <p className="text-center text-gray-500 text-sm mb-8">
+                Agrega una foto para personalizar tu perfil
+              </p>
+
+              {/* Círculo de la foto (Placeholder) */}
+              <div className="flex justify-center mb-8">
+                <div className="w-40 h-40 rounded-full border-[6px] border-gray-100 bg-gray-50 flex items-center justify-center text-gray-400 cursor-pointer hover:bg-gray-100 transition-colors shadow-sm">
+                  <svg className="w-14 h-14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                    <circle cx="12" cy="13" r="4"></circle>
+                  </svg>
+                </div>
+              </div>
+
+              {/* Botón Subir Foto */}
+              <button className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-texto-oscuro p-3 rounded-lg font-bold hover:bg-gray-50 transition-colors shadow-sm mb-10">
+                <svg className="w-5 h-5 text-texto-oscuro" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                </svg>
+                Subir foto
+              </button>
+
+              {/* Botones Inferiores: Atrás y Registrarse */}
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => setPaso(2)}
+                  className="w-1/2 p-3 border border-gray-300 bg-white rounded-lg font-bold text-gray-500 hover:bg-gray-50 transition-colors shadow-sm"
+                >
+                  Atrás
+                </button>
+                <button 
+                  // Aquí conectaremos la función del backend para guardar todo
+                  onClick={() => console.log("¡Registrar Usuario!")}
+                  className="w-1/2 bg-primario text-white p-3 rounded-lg font-bold hover:bg-primario-hover transition-colors shadow-md"
+                >
+                  Registrarse
+                </button>
+              </div>
+
+              {/* Texto de omitir */}
+              <p className="text-center text-xs text-gray-400 mt-4">
+                Puedes omitir este paso y agregar una foto más tarde
+              </p>
+
             </div>
           )}
 
