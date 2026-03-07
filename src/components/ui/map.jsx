@@ -1,3 +1,4 @@
+//src/components/ui/map.jsx
 "use client";;
 import MapLibreGL from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";

@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { Map, MapMarker, MarkerContent } from "@/components/ui/map";
+import MapaPerfil from "./MapaPerfil";
 
 export default function PerfilModal({ isOpen, onClose, usuario }) {
   if (!isOpen || !usuario) return null;
@@ -36,7 +36,6 @@ export default function PerfilModal({ isOpen, onClose, usuario }) {
           {/* COLUMNA IZQUIERDA: Tarjetas de Información */}
           <div className="flex flex-col gap-4">
             
-            {/* Nombre */}
             <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
               <div className="bg-blue-100 text-primario p-3 rounded-full"><svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg></div>
               <div>
@@ -45,7 +44,6 @@ export default function PerfilModal({ isOpen, onClose, usuario }) {
               </div>
             </div>
 
-            {/* Correo */}
             <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
               <div className="bg-blue-100 text-primario p-3 rounded-full"><svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg></div>
               <div className="overflow-hidden">
@@ -54,7 +52,6 @@ export default function PerfilModal({ isOpen, onClose, usuario }) {
               </div>
             </div>
 
-            {/* Celular */}
             <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
               <div className="bg-blue-100 text-primario p-3 rounded-full"><svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg></div>
               <div>
@@ -63,7 +60,6 @@ export default function PerfilModal({ isOpen, onClose, usuario }) {
               </div>
             </div>
 
-            {/* Carnet de Identidad */}
             <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
               <div className="bg-blue-100 text-primario p-3 rounded-full"><svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg></div>
               <div>
@@ -82,26 +78,14 @@ export default function PerfilModal({ isOpen, onClose, usuario }) {
             </div>
             <p className="font-bold text-texto-oscuro text-lg mb-4">{usuario.ubicacion?.direccion}</p>
             
-            {/* === CAMBIO AQUÍ: Usamos viewState en lugar de initialViewState === */}
-            <div className="flex-1 w-full min-h-[250px] rounded-2xl overflow-hidden shadow-inner border border-gray-200 relative">
-              <Map 
-                theme="light" 
-                viewState={{ 
-                  longitude: usuario.ubicacion?.lng || -66.1568, 
-                  latitude: usuario.ubicacion?.lat || -17.3895, 
-                  zoom: 17 // Nivel de zoom perfecto para ver calles
-                }} 
-                className="w-full h-full" 
-                interactive={false} 
-              >
-                <MapMarker longitude={usuario.ubicacion?.lng || -66.1568} latitude={usuario.ubicacion?.lat || -17.3895}>
-                  <MarkerContent>
-                    <div className="flex flex-col items-center -mt-8">
-                      <svg className="w-10 h-10 text-primario drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                    </div>
-                  </MarkerContent>
-                </MapMarker>
-              </Map>
+            {/* Llamamos a tu componente separado */}
+            <div className="flex-1 w-full min-h-62.5 rounded-2xl overflow-hidden shadow-inner border border-gray-200 relative">
+              {isOpen && (
+                <MapaPerfil 
+                  lat={usuario.ubicacion?.lat || -17.3895} 
+                  lng={usuario.ubicacion?.lng || -66.1568} 
+                />
+              )}
             </div>
           </div>
 
