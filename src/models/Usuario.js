@@ -32,6 +32,10 @@ const UsuarioSchema = new mongoose.Schema(
       type: String,
       // Aquí guardaremos el ID único que nos dé Google si decide usar esa opción
     },
+    fotoPerfil: {
+      type: String, // Guardará el enlace (URL) que nos da Cloudinary
+      default: null, // Si el usuario no sube foto, se guarda como null
+    },
     ubicacion: {
       lat: { type: Number, required: true },
       lng: { type: Number, required: true },
@@ -53,13 +57,12 @@ const UsuarioSchema = new mongoose.Schema(
 UsuarioSchema.pre("save", async function (next) {
   // Si la contraseña no se ha modificado o no existe (ej. entró con Google), pasamos de largo
   if (!this.isModified("password") || !this.password) {
-    return next();
+    return;
   }
 
   // Encriptamos la contraseña con un nivel de complejidad de 10 "vueltas" (salt)
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  next();
 });
 
 // Este método nos servirá después para el Login: Compara la contraseña que 

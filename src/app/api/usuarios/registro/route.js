@@ -1,68 +1,104 @@
 //src/app/api/usuarios/registro/route.js
 import { NextResponse } from "next/server";
-import conectarDB from "@/lib/mongodb"; // Tu archivo de conexión a la base de datos
-import Usuario from "@/models/Usuario"; // El modelo seguro que acabamos de crear
+import conectarDB from "@/lib/mongodb"; 
+import Usuario from "@/models/Usuario"; 
+import { v2 as cloudinary } from "cloudinary";
+
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 
 export async function POST(request) {
   try {
-    // 1. Abrimos la bóveda (Conectamos a MongoDB)
     await conectarDB();
 
-    // 2. Extraemos los datos que nos envía el frontend (el formulario)
-    const data = await request.json();
-    const { nombreCompleto, ci, celular, correo, password, ubicacion } = data;
+    const data = await request.formData();
 
-    // 3. VALIDACIÓN BÁSICA: Asegurarnos de que no falte nada
-    if (!nombreCompleto || !ci || !celular || !correo || !password || !ubicacion) {
+    const nombres = data.get("nombres");
+    const apellidos = data.get("apellidos")
+    const ci = data.get("ci");
+    const celular = data.get("celular");
+    const correo = data.get("correo");
+    const password = data.get("password");
+    const direccion = data.get("direccion");
+    const lat = data.get("lat");
+    const lng = data.get("lng");
+    const fotoPerfilArchivo = data.get("fotoPerfil");
+
+    const nombreCompleto = `${nombres} ${apellidos}`.trim();
+
+    if (!nombres || !apellidos || !ci || !celular || !correo || !password) {
       return NextResponse.json(
-        { mensaje: "Todos los campos son obligatorios" },
-        { status: 400 } // 400 significa "Bad Request" (Petición incorrecta)
+        { mensaje: "Todos los campos básicos son obligatorios" },
+        { status: 400 }
       );
     }
 
-    // 4. EVITAR DUPLICADOS: Revisar si el correo o el CI ya existen
-    const usuarioExistente = await Usuario.findOne({
-      $or: [{ correo: correo }, { ci: ci }]
+    // EVITAR DUPLICADOS AHORA TAMBIÉN CON CI
+    const usuarioExistente = await Usuario.findOne({ 
+      $or: [{ correo: correo }, { ci: ci }] 
     });
-
     if (usuarioExistente) {
       return NextResponse.json(
-        { mensaje: "El correo o el Carnet de Identidad ya están registrados" },
-        { status: 409 } // 409 significa "Conflict" (Conflicto de datos)
+        { mensaje: "El correo o CI ya están registrados" },
+        { status: 409 } 
       );
     }
 
-    // 5. CREAR EL USUARIO: Pasamos los datos al molde
-    // Nota: ¡Aquí el Modelo Usuario.js se encarga de encriptar la contraseña automáticamente!
+   
+   let fotoUrlSegura = null; // Por defecto no hay foto
+
+    // Verificamos si el usuario realmente subió un archivo
+    if (fotoPerfilArchivo && fotoPerfilArchivo.size > 0) {
+      // 1. Convertimos el archivo binario a un "Buffer" que Node.js pueda leer
+      const bytes = await fotoPerfilArchivo.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+
+      // 2. Lo transformamos a un formato de texto Base64 (ideal para enviar por internet sin guardar en disco)
+      const base64Image = `data:${fotoPerfilArchivo.type};base64,${buffer.toString("base64")}`;
+
+      // 3. Subimos la imagen a Cloudinary en una carpeta llamada "servineo_perfiles"
+      const uploadResponse = await cloudinary.uploader.upload(base64Image, {
+        folder: "servineo_perfiles",
+      });
+
+      // 4. Extraemos el link seguro que nos devuelve Cloudinary
+      fotoUrlSegura = uploadResponse.secure_url;
+    }
+
+
     const nuevoUsuario = new Usuario({
       nombreCompleto,
-      ci,
+     ci: ci, // ¡GUARDAMOS EL CI REAL AQUÍ! 
       celular,
       correo,
       password,
-      ubicacion
+      // === LA SOLUCIÓN ESTÁ AQUÍ ===
+      // Le damos a MongoDB exactamente el objeto que exige tu modelo
+      ubicacion: {
+        direccion: direccion,
+        lat: parseFloat(lat), // Convertimos el texto a número decimal
+        lng: parseFloat(lng)  // Convertimos el texto a número decimal
+      }, 
+      fotoPerfil: fotoUrlSegura,
     });
 
-    // Guardamos en la nube de MongoDB Atlas
+    // Guardamos en la base de datos
     await nuevoUsuario.save();
 
-    // ==========================================
-    // 6. EL SELLO DE SEGURIDAD (Lo que le faltaba a tus compañeros)
-    // ==========================================
-    // Convertimos el resultado de la base de datos a un objeto de Javascript normal...
     const usuarioSeguro = nuevoUsuario.toObject();
-    
-    // ...¡Y borramos la contraseña antes de responder!
-    // Esto no la borra de la base de datos, solo la borra del "paquete" que le enviamos de vuelta a la página web.
     delete usuarioSeguro.password;
 
-    // 7. Responder con éxito
     return NextResponse.json(
       {
         mensaje: "Usuario registrado correctamente",
-        usuario: usuarioSeguro // Mandamos los datos limpios y seguros
+        usuario: usuarioSeguro 
       },
-      { status: 201 } // 201 significa "Created" (Creado con éxito)
+      { status: 201 } 
     );
 
   } catch (error) {
